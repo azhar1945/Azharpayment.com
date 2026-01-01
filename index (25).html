@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Azhar Payment</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* {
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #0b0b0b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  overflow: hidden;
+}
+
+/* ===== LOADING ===== */
+#loader {
+  position: fixed;
+  inset: 0;
+  background: #0b0b0b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loader-logo {
+  width: 90px;
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== CONTENT ===== */
+.container {
+  width: 100%;
+  max-width: 360px;
+  background: #151515;
+  border-radius: 18px;
+  padding: 25px;
+  text-align: center;
+  box-shadow: 0 0 40px rgba(0,0,0,0.7);
+  position: relative;
+  z-index: 3;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: 0.5s ease;
+}
+
+.container.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.logo-dana {
+  width: 90px;
+  margin-bottom: 10px;
+}
+
+.profile h1 {
+  margin: 5px 0;
+  font-size: 22px;
+}
+
+.profile p {
+  font-size: 13px;
+  color: #aaa;
+  margin-bottom: 25px;
+}
+
+.number-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1f1f1f;
+  padding: 14px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.number-box span {
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+
+.number-box button {
+  background: #00c6ff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.pay-btn {
+  width: 100%;
+  padding: 15px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #00c6ff, #0072ff);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.footer {
+  margin-top: 20px;
+  font-size: 12px;
+  color: #666;
+}
+
+/* ===== RUMPUT NAIK TURUN ===== */
+.grass {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 120px;
+  z-index: 1;
+  animation: grassWave 5s ease-in-out infinite;
+}
+
+@keyframes grassWave {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-12px); }
+  100% { transform: translateY(0); }
+}
+
+.grass svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ===== LOADING ===== -->
+<div id="loader">
+  <img
+    src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_dana_blue.svg"
+    alt="Loading DANA"
+    class="loader-logo">
+</div>
+
+<!-- ===== CONTENT ===== -->
+<div class="container" id="content">
+  <div class="profile">
+    <img class="logo-dana"
+      src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_dana_blue.svg"
+      alt="DANA">
+    <h1>Azhar Payment</h1>
+    <p>Redirect Pembayaran DANA</p>
+  </div>
+
+  <div class="number-box">
+    <span id="danaNumber">082125196769</span>
+    <button onclick="copyNumber()">Copy</button>
+  </div>
+
+  <button class="pay-btn" onclick="redirectDana()">
+    Bayar via DANA
+  </button>
+
+  <div class="footer">
+    © 2026 azharpayment.com
+  </div>
+</div>
+
+<!-- ===== RUMPUT ===== -->
+<div class="grass">
+  <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
+    <path d="M0,80 C120,40 240,40 360,70
+             480,100 600,100 720,70
+             840,40 960,40 1080,70
+             1200,100 1320,100 1440,70
+             L1440,120 L0,120 Z"
+          fill="#2ecc71"/>
+  </svg>
+</div>
+
+<script>
+/* ===== SUARA "CLENG" ===== */
+let audioCtx;
+
+function playCleng() {
+  try {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    const ctx = audioCtx;
+    if (ctx.state === "suspended") ctx.resume();
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "triangle";     // kesan logam
+    osc.frequency.setValueAtTime(1200, ctx.currentTime);
+
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.5, ctx.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.4);
+
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.45);
+  } catch (e) {}
+}
+
+/* ===== COPY & REDIRECT ===== */
+function copyNumber() {
+  const number = document.getElementById("danaNumber").innerText;
+  navigator.clipboard.writeText(number);
+  alert("Nomor DANA berhasil disalin!");
+}
+
+function redirectDana() {
+  window.location.href = "https://link.dana.id/082125196769";
+}
+
+/* ===== LOADING CONTROL ===== */
+window.addEventListener("load", () => {
+  playCleng(); // coba bunyi otomatis
+
+  setTimeout(() => {
+    document.getElementById("loader").style.display = "none";
+    document.getElementById("content").classList.add("show");
+  }, 900);
+});
+
+/* fallback jika browser butuh interaksi */
+document.addEventListener("click", () => {
+  playCleng();
+}, { once: true });
+</script>
+
+</body>
+</html>
